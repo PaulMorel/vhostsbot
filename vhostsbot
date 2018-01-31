@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# vhostsbot
+
+# =============================================================================
+# nginx Virtual Hosts Setup Script
+# =============================================================================
+
+# See: https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
+set -euo pipefail
+
+# ---------------------------------------------------------
+# Constants
+# ---------------------------------------------------------
+
+declare -r script_name="vhostsbot"
+declare -r script_log_file="/var/log/${script_name}.log"
+
+declare -r web_root="/var/www/"
+declare -r web_sites_enabled="/etc/nginx/sites-enabled/"
+declare -r web_sites_available="/etc/nginx/sites-available/"
+
+# ---------------------------------------------------------
+# Functions
+# ---------------------------------------------------------
+
+# Logging
+info() { 
+
+  echo "[INFO]    $*" | tee -a "$script_log_file" >&2
+
+}
+
+warning() { 
+
+  echo "[WARNING] $*" | tee -a "$script_log_file" >&2
+
+}
+
+error() { 
+
+  echo "[ERROR]   $*" | tee -a "$script_log_file" >&2
+
+}
+
+fatal() { 
+
+  echo "[FATAL]   $*" | tee -a "$script_log_file" >&2
+  exit 1
+
+}
+
+# Main
+main() {
+
+  # Check if the user has root privileges
+  if [[ "$(whoami)" != "root" ]]; then
+    fatal("You don't have permission to run ${script_name}. Use sudo.")
+  fi
+
+  #Check if any arguments are supplied
+  if [[ $# -eq 0 ]]; then
+    help
+    exit 1
+  fi
+
+  # If at least one argument is supplied
+  while [[ $# -gt 0 ]]; do
+
+    arguments_command="$1"
+    arguments_flag="$2"
+
+    # Check that a command was entered as first argument
+    case "$arguments_command" in
+      add)
+      ;;
+      add)
+      ;;
+    esac
+
+
+    case "$flag" in
+      
+      -h|--help)
+        help
+        break
+      ;;
+
+      -d|--domain)
+        domain="$2"
+        echo "$arg $domain"
+        shift 2
+      ;;
+      
+      *)
+        echo "Invalid argument: $arg" >&2
+        exit 1
+      ;;
+    esac
+  done
+
+}
+
+# Help
+help() {
+
+  cat <<EOF
+Usage: 
+  $0 [command] [options]
+  
+Commands:
+  add         Add a new virtual host config
+  disable     Disable an existing virtual host config
+  enable      Enable an existing virtual host config
+  remove      Remove a virtual host config
+  
+Options:
+  -d --domain   Site domain to be added remove (Default: Ask)
+  -s --server   Web server software to be used (Default: nginx)
+  -t --test     Test "add" or "remove" commands without writing any changes to disk
+  -h --help     Shows this
+
+EOF
+
+}
+
+cleanup() {
+    # ...
+}
+
+trap cleanup EXIT
+main "$@"
